@@ -1,1 +1,6 @@
 /kubernetes-manifests
+.idea
+/planner/.classpath
+/planner/.project
+/planner/.settings
+/planner/target

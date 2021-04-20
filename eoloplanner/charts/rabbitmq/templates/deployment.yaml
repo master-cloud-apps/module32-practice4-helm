@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rabbitmq.name" . }}-deploy
+  labels:
+    app: {{ include "rabbitmq.name" . }}
+    chart: {{ include "rabbitmq.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "rabbitmq.name" . }}
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "rabbitmq.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ include "rabbitmq.name" . }}-rabbitmq
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: {{ .Values.global.rabbit.default_user }}
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Release.Name }}-rabbitmq-secret
+        ports:
+        - containerPort: 5672
+        volumeMounts:
+        - name: {{ include "rabbitmq.name" . }}-data
+          mountPath: /var/lib/rabbitmq/mnesia
+      volumes:
+      - name: {{ include "rabbitmq.name" . }}-data
+        persistentVolumeClaim:
+          claimName: {{ include "rabbitmq.name" . }}-pvc

@@ -1,0 +1,39 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "rabbitmq.name" . }}-pvc
+  labels:
+    app: {{ include "rabbitmq.name" . }}
+    chart: {{ include "rabbitmq.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+{{ if .Values.persistence.volume.enabled }}
+  storageClassName: {{ .Values.storageclass.name }}
+{{ end }}  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistence.volume.claim }}
+{{- if .Values.persistence.volume.enabled }}
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ include "rabbitmq.name" . }}-pv
+  labels:
+    type: local
+    app: {{ include "mysql.name" . }}
+    chart: {{ include "mysql.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  storageClassName: {{ .Values.storageclass.name }}
+  capacity:
+    storage: {{ .Values.persistence.volume.total }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /{{ .Release.Name }}{{ .Values.persistence.volume.hostpath }}
+{{- end }}

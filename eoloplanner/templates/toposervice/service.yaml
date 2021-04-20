@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "toposervice.service" . }}
+  labels:
+    app: {{ include "toposervice.name" . }}
+spec:
+  type: {{ if .Values.ingress.enabled }}ClusterIP{{ else }}{{ .Values.toposervice.service.type }}{{ end }}
+  ports:
+    - port: {{ .Values.toposervice.service.port }}
+      targetPort: {{ .Values.toposervice.service.port }}
+      protocol: TCP
+      name: {{ include "toposervice.name" . }}-port
+  selector:
+    app: {{ include "toposervice.name" . }}

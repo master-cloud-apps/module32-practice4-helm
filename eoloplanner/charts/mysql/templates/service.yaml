@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mysql.name" . }}-service
+  labels:
+    app: {{ include "mysql.name" . }}
+    chart: {{ include "mysql.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: {{ include "mysql.name" . }}
+    release: {{ .Release.Name }}
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.global.mysql.port }}
+      targetPort: {{ .Values.global.mysql.port }}
+      protocol: TCP
+      name: mysql-port
+

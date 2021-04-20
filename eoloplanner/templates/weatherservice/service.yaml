@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "weatherservice.service" . }}
+  labels:
+    app: {{ include "weatherservice.name" . }}
+spec:
+  ports:
+  - port: {{ .Values.weatherservice.service.port }}
+    targetPort: {{ .Values.weatherservice.service.port }}
+    protocol: TCP
+    name: {{ include "weatherservice.name" . }}-port
+  selector:
+    app: {{ include "weatherservice.name" . }}
+  type: {{ .Values.weatherservice.service.type }}

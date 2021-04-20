@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "weatherservice.name" . }}-deploy
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "weatherservice.name" . }}
+  replicas: {{ .Values.weatherservice.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "weatherservice.name" . }}
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.global.securityContext.runAsUser | default 1001 }}
+      restartPolicy: Always
+      containers:
+      - name: {{ include "weatherservice.name" . }}
+        image: "{{ .Values.weatherservice.image.repository }}:{{ .Values.weatherservice.image.tag }}"
+        env:
+        - name: GRPC_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: GRPC_PORT
+          value: "{{ .Values.weatherservice.service.port }}"
+        ports:
+        - containerPort: {{ .Values.weatherservice.service.port }}

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "planner.name" . }}-deploy
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "planner.name" . }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "planner.name" . }}
+        dns-policy: enabled
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.global.securityContext.runAsUser | default 1001 }}
+      restartPolicy: Always
+      containers:
+      - name: {{ include "planner.name" . }}
+        image: "{{ .Values.planner.image.repository }}:{{ .Values.planner.image.tag }}"
+        env:
+        - name: TOPO_HOST
+          value: {{ include "toposervice.service" . }}
+        - name: TOPO_PORT
+          value: "{{ .Values.toposervice.service.port }}"
+        - name: GRPC_CLIENT_WEATHERSERVER_ADDRESS
+          value: static://{{ include "weatherservice.service" . }}:9090
+        - name: SPRING_RABBITMQ_HOST
+          value: {{ include "rabbitmq.service" . }}
+        - name: SPRING_RABBITMQ_PORT
+          value: "{{ .Values.global.rabbit.port }}"
+        - name: SPRING_RABBITMQ_USERNAME
+          value: {{ .Values.global.rabbit.default_user }}
+        - name: SPRING_RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Release.Name }}-rabbitmq-secret

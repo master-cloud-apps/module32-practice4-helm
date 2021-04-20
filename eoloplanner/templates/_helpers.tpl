@@ -1,62 +1,82 @@
 {{/*
-Expand the name of the chart.
+Weatherservice
 */}}
-{{- define "eoloplanner.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
-*/}}
-{{- define "eoloplanner.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "weatherservice.name" -}}
+{{- if .Values.nameOverride }}
+{{- .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{- printf "%s-%s" .Release.Name "weatherservice" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 
+{{- define "weatherservice.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "weatherservice.service" -}}
+{{- printf "%s-%s-%s"  .Release.Name "weatherservice" "service" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
 {{/*
-Create chart name and version as used by the chart label.
+Planner
 */}}
-{{- define "eoloplanner.chart" -}}
+{{- define "planner.name" -}}
+{{- if .Values.nameOverride }}
+{{- .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name "planner" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{- define "planner.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
-Common labels
+Toposervice
 */}}
-{{- define "eoloplanner.labels" -}}
-helm.sh/chart: {{ include "eoloplanner.chart" . }}
-{{ include "eoloplanner.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
-
-{{/*
-Selector labels
-*/}}
-{{- define "eoloplanner.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "eoloplanner.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "eoloplanner.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "eoloplanner.fullname" .) .Values.serviceAccount.name }}
+{{- define "toposervice.name" -}}
+{{- if .Values.nameOverride }}
+{{- .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- printf "%s-%s" .Release.Name "toposervice" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{- define "toposervice.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "toposervice.service" -}}
+{{- printf "%s-%s-%s"  .Release.Name "toposervice" "service" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Server
+*/}}
+{{- define "server.name" -}}
+{{- if .Values.nameOverride }}
+{{- .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name "server" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{- define "server.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "server.service" -}}
+{{- printf "%s-%s-%s"  .Release.Name "server" "service" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Ingress
+*/}}
+{{- define "ingress.name" -}}
+{{- if .Values.nameOverride }}
+{{- .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name "ingress" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}

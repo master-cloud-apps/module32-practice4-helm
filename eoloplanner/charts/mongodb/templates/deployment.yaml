@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mongodb.name" . }}-deploy
+  labels:
+    app: {{ include "mongodb.name" . }}
+    chart: {{ include "mongodb.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "mongodb.name" . }}
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "mongodb.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ include "mongodb.name" . }}-mongodb
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        env:
+        - name: MONGO_INITDB_DATABASE
+          value: {{ .Values.global.mongo.db }}
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: {{ .Values.global.mongo.db_root_username }}
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Release.Name }}-mongodb-secret
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: {{ include "mongodb.name" . }}-data
+          mountPath: /data/db
+      volumes:
+      - name: {{ include "mongodb.name" . }}-data
+        persistentVolumeClaim:
+          claimName: {{ include "mongodb.name" . }}-pvc

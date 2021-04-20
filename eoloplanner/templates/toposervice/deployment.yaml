@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "toposervice.name" . }}-deploy
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "toposervice.name" . }}
+  replicas: {{ .Values.toposervice.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "toposervice.name" . }}
+        dns-policy: enabled
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.global.securityContext.runAsUser | default 1001 }}
+      restartPolicy: Always
+      containers:
+      - name: {{ include "toposervice.name" . }}
+        image: "{{ .Values.toposervice.image.repository }}:{{ .Values.toposervice.image.tag }}"
+        env:
+        - name: SPRING_DATA_MONGODB_HOST
+          value: {{ include "mongodb.service" . }}
+        - name: SPRING_DATA_MONGODB_PORT
+          value: "{{ .Values.global.mongo.port }}" 
+        - name: SPRING_DATA_MONGODB_DATABASE
+          value: {{ .Values.global.mongo.db }} 
+        - name: SPRING_DATA_MONGODB_AUTHENTICATION-DATABASE
+          value: {{ .Values.toposervice.spring_data_mongodb_authentication_database }} 
+        - name: SPRING_DATA_MONGODB_USERNAME
+          value: {{ .Values.global.mongo.db_root_username }} 
+        - name: SPRING_DATA_MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Release.Name }}-mongodb-secret 
+        ports:
+        - containerPort: {{ .Values.toposervice.service.port }}

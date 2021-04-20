@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mongodb.name" . }}-service
+  labels:
+    app: {{ include "mongodb.name" . }}
+    chart: {{ include "mongodb.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: {{ include "mongodb.name" . }}
+    release: {{ .Release.Name }}
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.global.mongo.port }}
+      targetPort: {{ .Values.global.mongo.port }}
+      protocol: TCP
+      name: mongodb-port
+

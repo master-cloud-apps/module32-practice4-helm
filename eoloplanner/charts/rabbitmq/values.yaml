@@ -1,0 +1,26 @@
+# Default values for mysql.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: rabbitmq
+  tag: 3-management
+
+service:
+  type: ClusterIP
+  port: 5672
+
+## Enable persistence using Persistent Volume Claims
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+##
+persistence:
+  volume:
+    enabled: true
+    claim: 1Gi
+    total: 1Gi
+    hostpath: "/broker/rabbitmq"
+
+storageclass:
+  name: rabbitmq-storageclass

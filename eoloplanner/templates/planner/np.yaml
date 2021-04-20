@@ -1,0 +1,32 @@
+{{- if .Values.global.np.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "planner.name" . }}-to-rabbit-weather-topo
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "planner.name" . }}
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: {{ include "rabbitmq.name" . }}
+    ports:
+    - port: {{ .Values.global.rabbit.port }}
+      protocol: TCP
+  - to:
+    - podSelector:
+        matchLabels:
+          app: {{ include "weatherservice.name" . }}
+    ports:
+    - port: {{ .Values.weatherservice.service.port }}
+      protocol: TCP
+  - to:
+    - podSelector:
+        matchLabels:
+          app: {{ include "toposervice.name" . }}
+    ports:
+    - port: {{ .Values.toposervice.service.port }}
+      protocol: TCP
+{{- end }}

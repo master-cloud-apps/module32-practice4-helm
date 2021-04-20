@@ -1,0 +1,21 @@
+{{- if .Values.global.np.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "rabbitmq.name" . }}-from-planner-server
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "rabbitmq.name" . }}
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: {{ include "planner.name" . }}
+    - podSelector:
+        matchLabels:
+          app: {{ include "server.name" . }}
+    ports:
+    - port: {{ .Values.global.rabbit.port }}
+      protocol: TCP
+{{- end }}
